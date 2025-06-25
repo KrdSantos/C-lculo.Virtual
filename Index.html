@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo Virtual: Limites, Derivadas, Integrais, Somatório e Produtório</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #050a14;
+            --primary-color: #0a192f;
+            --accent-color: #4d7cff;
+            --text-color: #e0e0e0;
+            --header-color: #88aaff;
+            --border-color: #1b263b;
+            --highlight-color: #3a6fda;
+            --card-bg: rgba(17, 34, 64, 0.7);
+            --transition-speed: 0.4s;
+        }
+        
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        html { 
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            line-height: 1.7;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(77, 124, 255, 0.05) 0%, transparent 15%),
+                radial-gradient(circle at 90% 80%, rgba(77, 124, 255, 0.05) 0%, transparent 15%),
+                radial-gradient(circle at 30% 70%, rgba(77, 124, 255, 0.03) 0%, transparent 20%),
+                radial-gradient(circle at 70% 30%, rgba(77, 124, 255, 0.03) 0%, transparent 20%),
+                linear-gradient(135deg, var(--bg-color) 0%, #0c1f3f 100%);
+            background-size: 100% 100%;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(77, 124, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(77, 124, 255, 0.03) 0%, transparent 40%);
+            z-index: -1;
+        }
+        
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(77, 124, 255, 0.5);
+            box-shadow: 0 0 10px rgba(77, 124, 255, 0.5);
+        }
+        
+        header {
+            background-color: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all var(--transition-speed) ease;
+        }
+
+        /* Estilo do header quando a página é rolada */
+        header.header-scrolled {
+            padding: 0.5rem 5%;
+            background-color: rgba(10, 25, 47, 0.85);
+        }
+        
+        header.header-scrolled .logo {
+            font-size: 1.5rem;
+        }
+        
+        nav { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease, font-size var(--transition-speed) ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        nav ul { 
+            list-style: none; 
+            display: flex; 
+            gap: 1.5rem; 
+            flex-wrap: wrap; 
+        }
+        
+        nav a { 
+            text-decoration: none; 
+            color: var(--text-color); 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            position: relative;
+        }
+        
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+        
+        nav a:hover { 
+            color: var(--accent-color); 
+        }
+        
+        nav a:hover::after {
+            width: 100%;
+        }
+        
+        main { 
+            padding: 7rem 5% 2rem 5%; 
+        }
+        
+        .hero { 
+            text-align: center; 
+            margin-bottom: 4rem; 
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 1px solid rgba(77, 124, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero h1 { 
+            font-size: 3.5rem; 
+            color: var(--accent-color); 
+            margin-bottom: 1rem;
+            text-shadow: 0 0 15px rgba(77, 124, 255, 0.4);
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(77, 124, 255, 0.4); }
+            to { text-shadow: 0 0 20px rgba(77, 124, 255, 0.8); }
+        }
+        
+        .hero p { 
+            font-size: 1.3rem; 
+            max-width: 800px; 
+            margin: auto; 
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .math-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .math-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(10, 25, 47, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            transition: all 0.5s ease;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .math-icon:nth-child(1) { animation-delay: 0s; }
+        .math-icon:nth-child(2) { animation-delay: 0.2s; }
+        .math-icon:nth-child(3) { animation-delay: 0.4s; }
+        .math-icon:nth-child(4) { animation-delay: 0.6s; }
+        .math-icon:nth-child(5) { animation-delay: 0.8s; }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .math-icon:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 0 30px rgba(77, 124, 255, 0.7);
+            background: rgba(77, 124, 255, 0.1);
+        }
+        
+        .calc-section {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .calc-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .calc-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-color), var(--highlight-color));
+        }
+        
+        .calc-section h2 {
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .calc-section h2 i {
+            font-size: 2rem;
+            background: rgba(77, 124, 255, 0.1);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+            transition: transform 0.3s ease;
+        }
+        
+        .calc-section h2:hover i {
+            transform: rotate(15deg);
+        }
+        
+        .calc-section h3 {
+            font-size: 1.8rem;
+            color: var(--header-color);
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .calc-section h3::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+        
+        .calc-section h4 {
+            font-size: 1.4rem;
+            color: var(--header-color);
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .formula-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .formula-card {
+            background: rgba(17, 34, 64, 0.6);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(0) rotateY(0);
+            transform-style: preserve-3d;
+        }
+        
+        .formula-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-color);
+        }
+        
+        .formula-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(77, 124, 255, 0.05) 0%, transparent 70%);
+            z-index: 0;
+        }
+        
+        .formula-title {
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .formula-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .formula-content .math {
+            display: block;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .formula-card:hover .math {
+            transform: scale(1.05);
+        }
+        
+        .graph-container {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: 2rem auto;
+            background: rgba(10, 25, 47, 0.5);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .graph-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .graph-btn {
+            background: rgba(17, 34, 64, 0.7);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .graph-btn:hover, .graph-btn.active {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            border-color: var(--accent-color);
+        }
+        
+        .graph-image {
+            width: 100%;
+            max-width: 500px;
+            display: block;
+            margin: 1.5rem auto;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            transition: transform 0.5s ease;
+        }
+        
+        .graph-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .caption { 
+            text-align: center; 
+            font-style: italic; 
+            color: #aaa; 
+            margin-top: 0.5rem; 
+            font-size: 0.9rem;
+        }
+        
+        footer { 
+            text-align: center; 
+            padding: 2.5rem; 
+            border-top: 1px solid var(--primary-color); 
+            color: #888;
+            background: rgba(10, 25, 47, 0.5);
+            margin-top: 3rem;
+            border-radius: 10px;
+        }
+        
+        .example-box {
+            background: rgba(17, 34, 64, 0.8);
+            border-left: 3px solid var(--accent-color);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .example-box:hover {
+            transform: translateX(10px);
+        }
+        
+        .example-title {
+            color: var(--accent-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .math {
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: rgba(10, 25, 47, 0.5);
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .math:hover {
+            background: rgba(77, 124, 255, 0.1);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-color);
+            color: var(--bg-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(77, 124, 255, 0.4);
+        }
+        
+        .interactive-canvas {
+            width: 100%;
+            height: 300px;
+            background: rgba(10, 25, 47, 0.5);
+            border-radius: 10px;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .graph-slider {
+            width: 90%;
+            margin: 1rem auto;
+        }
+        
+        .graph-slider input {
+            width: 100%;
+        }
+        
+        .slider-value {
+            text-align: center;
+            margin-top: 0.5rem;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Estilos para a tabela de integração tabular */
+        .tabular-table {
+            width: 100%;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            border-collapse: collapse;
+            text-align: center;
+            font-family: 'Source Code Pro', monospace;
+        }
+        .tabular-table th, .tabular-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.8rem;
+        }
+        .tabular-table th {
+            background-color: var(--primary-color);
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+        .tabular-table tr:nth-child(even) {
+            background-color: rgba(10, 25, 47, 0.5);
+        }
+        .tabular-table .col-sign {
+            width: 15%;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            nav ul { gap: 0.8rem; }
+            .hero h1 { font-size: 2.5rem; }
+            main { padding-top: 9rem; }
+            .calc-section { padding: 1.5rem; }
+            .math-icon { width: 60px; height: 60px; font-size: 1.5rem; }
+            .formula-container {
+                grid-template-columns: 1fr;
+            }
+            .graph-container {
+                height: 300px;
+            }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes formulaPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .formula-card {
+            animation: formulaPop 0.6s ease-out forwards;
+            animation-delay: calc(var(--index) * 0.1s);
+        }
+
+        .plotly .gridlayer .grid .zeroline {
+            stroke: rgba(136, 170, 255, 0.5) !important;
+        }
+        .plotly .gridlayer .grid path {
+            stroke: var(--border-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+    
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-calculator"></i>
+                <span>Cálculo Virtual</span>
+            </div>
+            <ul>
+                <li><a href="#limites"><i class="fas fa-chart-line"></i> Limites</a></li>
+                <li><a href="#identidades"><i class="fas fa-shapes"></i> Identidades</a></li>
+                <li><a href="#derivadas"><i class="fas fa-function"></i> Derivadas</a></li>
+                <li><a href="#integrais"><i class="fas fa-integral"></i> Integrais</a></li>
+                <li><a href="#somatorio"><i class="fas fa-sigma"></i> Somatório</a></li>
+                <li><a href="#produtorio"><i class="fas fa-product-hunt"></i> Produtório</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Cálculo Virtual</h1>
+            <p>Portal completo de cálculo: limites, derivadas, integrais, somatório e produtório com teoria detalhada e exemplos práticos.</p>
+            
+            <div class="math-icons">
+                <div class="math-icon" data-section="limites">∫</div>
+                <div class="math-icon" data-section="derivadas">d/dx</div>
+                <div class="math-icon" data-section="limites">lim</div>
+                <div class="math-icon" data-section="somatorio">Σ</div>
+                <div class="math-icon" data-section="produtorio">Π</div>
+            </div>
+        </section>
+
+        <section id="limites" class="calc-section">
+            <h2><i class="fas fa-chart-line"></i> Limites</h2>
+            <p>O conceito de limite é a base do cálculo. Ele descreve o comportamento de uma função à medida que sua variável de entrada se aproxima de um determinado valor.</p>
+            <p>A notação é: $$\lim_{x \to a} f(x) = L$$</p>
+            
+            <h3>Propriedades Fundamentais</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus-circle"></i> Limite da Soma</div>
+                    <div class="formula-content">
+                        $$\lim_{x \to a} [f(x) + g(x)] = \lim_{x \to a} f(x) + \lim_{x \to a} g(x)$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-times-circle"></i> Limite do Produto</div>
+                    <div class="formula-content">
+                        $$\lim_{x \to a} [f(x) \cdot g(x)] = \lim_{x \to a} f(x) \cdot \lim_{x \to a} g(x)$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-divide"></i> Limite do Quociente</div>
+                    <div class="formula-content">
+                        $$\lim_{x \to a} \frac{f(x)}{g(x)} = \frac{\lim_{x \to a} f(x)}{\lim_{x \to a} g(x)} \quad \text{se} \quad \lim_{x \to a} g(x) \neq 0$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-infinity"></i> Limites Notáveis</div>
+                    <div class="formula-content">
+                        $$\lim_{x \to 0} \frac{\sin x}{x} = 1$$
+                        $$\lim_{x \to \infty} \left(1 + \frac{1}{x}\right)^x = e$$
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interactive-canvas" id="limit-graph">
+                <div class="graph-controls">
+                    <button class="graph-btn active" data-fn="sin">sen(x)</button>
+                    <button class="graph-btn" data-fn="cos">cos(x)</button>
+                    <button class="graph-btn" data-fn="exp">e^x</button>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo:</div>
+                <p>Calcule o limite: $$\lim_{x \to 2} \frac{x^2 - 4}{x - 2}$$</p>
+                <p><strong>Solução:</strong> Fatorando o numerador, temos:</p>
+                <p>$$\lim_{x \to 2} \frac{(x-2)(x+2)}{x-2} = \lim_{x \to 2} (x+2) = 4$$</p>
+            </div>
+        </section>
+
+        <section id="identidades" class="calc-section">
+            <h2><i class="fas fa-shapes"></i> Identidades Trigonométricas</h2>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-circle"></i> Identidade Fundamental</div>
+                    <div class="formula-content">
+                        $$\sin^2 x + \cos^2 x = 1$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-circle"></i> Relações Pitagóricas</div>
+                    <div class="formula-content">
+                        $$1 + \tan^2 x = \sec^2 x$$
+                        $$1 + \cot^2 x = \csc^2 x$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-angle-double-right"></i> Arco Duplo</div>
+                    <div class="formula-content">
+                        $$\sin 2x = 2 \sin x \cos x$$
+                        $$\cos 2x = \cos^2 x - \sin^2 x$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-angle-right"></i> Arco Metade</div>
+                    <div class="formula-content">
+                        $$\sin^2 x = \frac{1 - \cos 2x}{2}$$
+                        $$\cos^2 x = \frac{1 + \cos 2x}{2}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus"></i> Soma de Ângulos</div>
+                    <div class="formula-content">
+                        $$\sin(a + b) = \sin a \cos b + \cos a \sin b$$
+                        $$\cos(a + b) = \cos a \cos b - \sin a \sin b$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-exchange-alt"></i> Transformação em Produto</div>
+                    <div class="formula-content">
+                        $$\sin a + \sin b = 2 \sin\left(\frac{a+b}{2}\right) \cos\left(\frac{a-b}{2}\right)$$
+                        $$\cos a + \cos b = 2 \cos\left(\frac{a+b}{2}\right) \cos\left(\frac{a-b}{2}\right)$$
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="derivadas" class="calc-section">
+            <h2><i class="fas fa-function"></i> Derivadas</h2>
+            <h3>Visualização Gráfica</h3>
+            <p>A derivada é a inclinação da reta tangente a um ponto da curva. Ela nos dá a taxa de variação instantânea.</p>
+            
+            <div class="interactive-canvas" id="derivative-graph">
+                <div class="graph-controls">
+                    <button class="graph-btn active" data-fn="x^2">x²</button>
+                    <button class="graph-btn" data-fn="sin">sen(x)</button>
+                    <button class="graph-btn" data-fn="exp">e^x</button>
+                </div>
+                <div class="graph-slider">
+                    <input type="range" min="1" max="100" value="50" id="point-slider">
+                    <div class="slider-value">Ponto: <span id="point-value">0.00</span></div>
+                </div>
+            </div>
+            
+            <h3>Regras Fundamentais</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-cube"></i> Regra da Potência</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}(x^n) = nx^{n-1}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus-circle"></i> Regra da Soma</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}[f(x) + g(x)] = f'(x) + g'(x)$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-times-circle"></i> Regra do Produto</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}[f(x) \cdot g(x)] = f'(x)g(x) + f(x)g'(x)$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-divide"></i> Regra do Quociente</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}\left[\frac{f(x)}{g(x)}\right] = \frac{f'(x)g(x) - f(x)g'(x)}{[g(x)]^2}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-link"></i> Regra da Cadeia</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>Derivadas de Funções Elementares</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-superscript"></i> Função Exponencial</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}(e^x) = e^x$$
+                        $$\frac{d}{dx}(a^x) = a^x \ln a$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-book"></i> Função Logarítmica</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}(\ln x) = \frac{1}{x}$$
+                        $$\frac{d}{dx}(\log_a x) = \frac{1}{x \ln a}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i> Funções Trigonométricas</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}(\sin x) = \cos x$$
+                        $$\frac{d}{dx}(\cos x) = -\sin x$$
+                        $$\frac{d}{dx}(\tan x) = \sec^2 x$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-exchange-alt"></i> Funções Trigonométricas Inversas</div>
+                    <div class="formula-content">
+                        $$\frac{d}{dx}(\arcsin x) = \frac{1}{\sqrt{1 - x^2}}$$
+                        $$\frac{d}{dx}(\arccos x) = -\frac{1}{\sqrt{1 - x^2}}$$
+                        $$\frac{d}{dx}(\arctan x) = \frac{1}{1 + x^2}$$
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo:</div>
+                <p>Derive a função: $$f(x) = \sin(3x^2 + 2x)$$</p>
+                <p><strong>Solução:</strong> Usando a regra da cadeia:</p>
+                <p>$$f'(x) = \cos(3x^2 + 2x) \cdot (6x + 2)$$</p>
+            </div>
+        </section>
+
+        <section id="integrais" class="calc-section">
+            <h2><i class="fas fa-integral"></i> Integrais</h2>
+            <h3>Visualização Gráfica</h3>
+            <p>A integral definida pode ser visualizada como a área líquida sob a curva de uma função, entre dois pontos.</p>
+            
+            <div class="interactive-canvas" id="integral-graph">
+                <div class="graph-controls">
+                    <button class="graph-btn active" data-fn="x^2">x²</button>
+                    <button class="graph-btn" data-fn="sin">sen(x)</button>
+                    <button class="graph-btn" data-fn="sqrt">√x</button>
+                </div>
+                <div class="graph-slider">
+                    <input type="range" min="0" max="100" value="30" id="integral-slider">
+                    <div class="slider-value">Limite: <span id="integral-value">0.00</span></div>
+                </div>
+            </div>
+            
+            <h3>Integrais Fundamentais</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-cube"></i> Potência</div>
+                    <div class="formula-content">
+                        $$\int x^n  dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1)$$
+                        $$\int \frac{1}{x}  dx = \ln|x| + C$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-superscript"></i> Exponencial</div>
+                    <div class="formula-content">
+                        $$\int e^x  dx = e^x + C$$
+                        $$\int a^x  dx = \frac{a^x}{\ln a} + C$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i> Trigonométricas</div>
+                    <div class="formula-content">
+                        $$\int \sin x  dx = -\cos x + C$$
+                        $$\int \cos x  dx = \sin x + C$$
+                        $$\int \sec^2 x  dx = \tan x + C$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-exchange-alt"></i> Trigonométricas Inversas</div>
+                    <div class="formula-content">
+                        $$\int \frac{1}{\sqrt{1-x^2}}  dx = \arcsin x + C$$
+                        $$\int \frac{1}{1+x^2}  dx = \arctan x + C$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>Técnicas de Integração</h3>
+            <h4>Técnica de Substituição (U-Substituição)</h4>
+            <p>Usada para reverter a Regra da Cadeia. Escolhemos uma parte da função para ser \(u\).</p>
+            <p><strong>Exemplo:</strong> Para \(\int 2x \cos(x^2) dx\), fazemos \(u = x^2\). Então \(du = 2x dx\). A integral se torna \(\int \cos(u) du = \sin(u) + C = \sin(x^2) + C\).</p>
+            
+            <h4>Técnica de Integração por Partes</h4>
+            <p>Usada para reverter a Regra do Produto. A fórmula é \(\int u dv = uv - \int v du\).</p>
+            <p><strong>Exemplo:</strong> Para \(\int x e^x dx\), fazemos \(u = x\) e \(dv = e^x dx\). Então \(du = dx\) e \(v = e^x\). A integral se torna \(xe^x - \int e^x dx = xe^x - e^x + C\).</p>
+            
+            <h3>Aplicações e Técnicas Avançadas</h3>
+            
+            <h4>Cálculo de Áreas entre Curvas</h4>
+            <p>Para encontrar a área entre duas curvas, \(f(x)\) e \(g(x)\), onde \(f(x) \ge g(x)\) no intervalo \([a, b]\), usamos a integral definida:</p>
+            <div class="math">$$A = \int_{a}^{b} [f(x) - g(x)] \,dx$$</div>
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo: Área entre \(y=x\) e \(y=x^2\)</div>
+                <p>1. <strong>Encontrar os pontos de interseção:</strong> \(x = x^2 \Rightarrow x^2 - x = 0 \Rightarrow x(x-1) = 0\). As curvas se encontram em \(x=0\) e \(x=1\).</p>
+                <p>2. <strong>Montar a integral:</strong> No intervalo \([0, 1]\), temos \(x \ge x^2\). Portanto, \(f(x)=x\) e \(g(x)=x^2\).</p>
+                <p>$$A = \int_{0}^{1} (x - x^2) \,dx = \left[ \frac{x^2}{2} - \frac{x^3}{3} \right]_{0}^{1}$$</p>
+                <p>$$A = \left(\frac{1^2}{2} - \frac{1^3}{3}\right) - (0) = \frac{1}{2} - \frac{1}{3} = \frac{1}{6}$$</p>
+            </div>
+
+            <h4>Volume de Sólidos de Revolução</h4>
+            <p>Calculamos o volume de um sólido gerado pela rotação de uma região plana em torno de um eixo.</p>
+            <p><strong>Método dos Discos/Arruelas:</strong> Usado quando o retângulo de aproximação é perpendicular ao eixo de rotação.</p>
+            <div class="math">Disco: $$V = \pi \int_{a}^{b} [R(x)]^2 \,dx$$</div>
+            <div class="math">Arruela: $$V = \pi \int_{a}^{b} ([R(x)]^2 - [r(x)]^2) \,dx$$</div>
+            
+            <p><strong>Método das Cascas Cilíndricas:</strong> Usado quando o retângulo de aproximação é paralelo ao eixo de rotação.</p>
+            <div class="math">$$V = 2\pi \int_{a}^{b} (\text{raio}) \cdot (\text{altura}) \,dx = 2\pi \int_{a}^{b} x \cdot f(x) \,dx$$</div>
+            
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo: Volume com Método dos Discos</div>
+                <p>Encontre o volume do sólido gerado pela rotação da região sob a curva \(y = \sqrt{x}\) de \(x=0\) a \(x=4\) em torno do eixo x.</p>
+                <p>O raio \(R(x)\) é a própria função, \(R(x) = \sqrt{x}\).</p>
+                <p>$$V = \pi \int_{0}^{4} (\sqrt{x})^2 \,dx = \pi \int_{0}^{4} x \,dx$$</p>
+                <p>$$V = \pi \left[ \frac{x^2}{2} \right]_{0}^{4} = \pi \left(\frac{4^2}{2} - 0\right) = 8\pi$$</p>
+            </div>
+
+            <h4>Integração por Partes Tabular</h4>
+            <p>É um método rápido para aplicar a integração por partes repetidamente. Ideal para integrais da forma \(\int p(x)f(x)dx\), onde \(p(x)\) é um polinômio que zera após algumas derivações e \(f(x)\) é uma função que pode ser integrada repetidamente (como \(e^x\), \(\sin x\), \(\cos x\)).</p>
+            <p>O método consiste em criar uma tabela com os sinais alternados, as derivadas de \(p(x)\) e as integrais de \(f(x)\).</p>
+            
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo: Calcular \(\int x^2 e^x dx\)</div>
+                <p>Montamos a tabela derivando \(u = x^2\) até zerar e integrando \(dv = e^x dx\).</p>
+                <table class="tabular-table">
+                    <thead>
+                        <tr>
+                            <th class="col-sign">Sinal</th>
+                            <th>Derivadas de u</th>
+                            <th>Integrais de dv</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="col-sign">+</td>
+                            <td>\(x^2\)</td>
+                            <td>\(e^x\)</td>
+                        </tr>
+                        <tr>
+                            <td class="col-sign">−</td>
+                            <td>\(2x\)</td>
+                            <td>\(e^x\)</td>
+                        </tr>
+                        <tr>
+                            <td class="col-sign">+</td>
+                            <td>\(2\)</td>
+                            <td>\(e^x\)</td>
+                        </tr>
+                        <tr>
+                            <td class="col-sign">−</td>
+                            <td>\(0\)</td>
+                            <td>\(e^x\)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>O resultado é a soma dos produtos das diagonais, respeitando os sinais:</p>
+                <p>$$\int x^2 e^x dx = (+1)(x^2)(e^x) + (-1)(2x)(e^x) + (+1)(2)(e^x) + C$$</p>
+                <p>$$\int x^2 e^x dx = x^2e^x - 2xe^x + 2e^x + C$$</p>
+            </div>
+
+            <h4>Fórmulas de Recorrência</h4>
+            <p>Estas fórmulas são usadas para simplificar integrais de potências de funções trigonométricas, reduzindo o expoente a cada passo até chegar a uma integral que pode ser resolvida diretamente.</p>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i>Seno</div>
+                    <div class="formula-content">
+                        $$\int \sin^n(au) \,du = - \frac{\sin^{n-1}(au) \cos(au)}{an} + \left(\frac{n-1}{n}\right) \int \sin^{n-2}(au) \,du$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i>Cosseno</div>
+                    <div class="formula-content">
+                        $$\int \cos^n(au) \,du = \frac{\sin(au) \cos^{n-1}(au)}{an} + \left(\frac{n-1}{n}\right) \int \cos^{n-2}(au) \,du$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i>Tangente</div>
+                    <div class="formula-content">
+                        $$\int \tan^n(au) \,du = \frac{\tan^{n-1}(au)}{a(n-1)} - \int \tan^{n-2}(au) \,du$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i>Cotangente</div>
+                    <div class="formula-content">
+                        $$\int \cot^n(au) \,du = - \frac{\cot^{n-1}(au)}{a(n-1)} - \int \cot^{n-2}(au) \,du$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i>Secante</div>
+                    <div class="formula-content">
+                        $$\int \sec^n(au) \,du = \frac{\sec^{n-2}(au) \tan(au)}{a(n-1)} + \left(\frac{n-2}{n-1}\right) \int \sec^{n-2}(au) \,du$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-wave-square"></i>Cossecante</div>
+                    <div class="formula-content">
+                        $$\int \csc^n(au) \,du = - \frac{\csc^{n-2}(au) \cot(au)}{a(n-1)} + \left(\frac{n-2}{n-1}\right) \int \csc^{n-2}(au) \,du$$
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="somatorio" class="calc-section">
+            <h2><i class="fas fa-sigma"></i> Somatório</h2>
+            <p>O somatório (\(\Sigma\)) é uma operação matemática que permite a soma de uma sequência de termos. É amplamente utilizado em estatística, probabilidade e análise matemática.</p>
+            <p>A notação é: $$\sum_{i=m}^{n} a_i = a_m + a_{m+1} + \ldots + a_n$$</p>
+            
+            <h3>Propriedades do Somatório</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-plus-circle"></i> Linearidade</div>
+                    <div class="formula-content">
+                        $$\sum_{i=m}^{n} (a_i + b_i) = \sum_{i=m}^{n} a_i + \sum_{i=m}^{n} b_i$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-asterisk"></i> Multiplicação por Constante</div>
+                    <div class="formula-content">
+                        $$\sum_{i=m}^{n} c \cdot a_i = c \cdot \sum_{i=m}^{n} a_i$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-infinity"></i> Soma de Constante</div>
+                    <div class="formula-content">
+                        $$\sum_{i=m}^{n} c = c \cdot (n - m + 1)$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-sort-amount-up"></i> Soma de Somas</div>
+                    <div class="formula-content">
+                        $$\sum_{i=1}^{m} \sum_{j=1}^{n} a_{ij} = \sum_{j=1}^{n} \sum_{i=1}^{m} a_{ij}$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>Fórmulas de Somatório Comuns</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-sort-numeric-up"></i> Soma dos Primeiros n Naturais</div>
+                    <div class="formula-content">
+                        $$\sum_{k=1}^{n} k = \frac{n(n+1)}{2}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-superscript"></i> Soma dos Quadrados</div>
+                    <div class="formula-content">
+                        $$\sum_{k=1}^{n} k^2 = \frac{n(n+1)(2n+1)}{6}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-cube"></i> Soma dos Cubos</div>
+                    <div class="formula-content">
+                        $$\sum_{k=1}^{n} k^3 = \left( \frac{n(n+1)}{2} \right)^2$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-chart-line"></i> Soma da Progressão Geométrica</div>
+                    <div class="formula-content">
+                        $$\sum_{k=0}^{n} r^k = \frac{1 - r^{n+1}}{1 - r} \quad (r \neq 1)$$
+                        $$\sum_{k=0}^{\infty} r^k = \frac{1}{1 - r} \quad (|r| < 1)$$
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interactive-canvas" id="summation-vis">
+                <div class="graph-slider">
+                    <input type="range" min="1" max="20" value="5" id="summation-slider">
+                    <div class="slider-value">n = <span id="summation-value">5</span></div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo:</div>
+                <p>Calcule o somatório: $$\sum_{k=1}^{n} (2k - 1)$$</p>
+                <p><strong>Solução:</strong> Podemos decompor:</p>
+                <p>$$\sum_{k=1}^{n} (2k - 1) = 2 \sum_{k=1}^{n} k - \sum_{k=1}^{n} 1 = 2 \cdot \frac{n(n+1)}{2} - n = n(n+1) - n = n^2$$</p>
+                <p>Este resultado mostra que a soma dos primeiros \(n\) números ímpares é \(n^2\).</p>
+            </div>
+        </section>
+        
+        <section id="produtorio" class="calc-section">
+            <h2><i class="fas fa-product-hunt"></i> Produtório</h2>
+            <p>O produtório (\(\Pi\)) é uma operação matemática que permite o produto de uma sequência de termos. É utilizado em matemática discreta, análise combinatória e teoria dos números.</p>
+            <p>A notação é: $$\prod_{i=m}^{n} a_i = a_m \cdot a_{m+1} \cdot \ldots \cdot a_n$$</p>
+            
+            <h3>Propriedades do Produtório</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-times-circle"></i> Produtório de Produtos</div>
+                    <div class="formula-content">
+                        $$\prod_{i=m}^{n} (a_i \cdot b_i) = \left( \prod_{i=m}^{n} a_i \right) \cdot \left( \prod_{i=m}^{n} b_i \right)$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-superscript"></i> Produtório de Constante</div>
+                    <div class="formula-content">
+                        $$\prod_{i=m}^{n} c = c^{(n - m + 1)}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-power-off"></i> Produtório de uma Potência</div>
+                    <div class="formula-content">
+                        $$\prod_{i=m}^{n} a_i^k = \left( \prod_{i=m}^{n} a_i \right)^k$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-calculator"></i> Logaritmo do Produtório</div>
+                    <div class="formula-content">
+                        $$\ln \left( \prod_{i=m}^{n} a_i \right) = \sum_{i=m}^{n} \ln a_i$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>Fórmulas de Produtório Comuns</h3>
+            <div class="formula-container">
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-exclamation"></i> Fatorial</div>
+                    <div class="formula-content">
+                        $$n! = \prod_{k=1}^{n} k$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-infinity"></i> Produtório de Constante</div>
+                    <div class="formula-content">
+                        $$\prod_{k=1}^{n} c = c^n$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-chart-line"></i> Produtório de Termos em PG</div>
+                    <div class="formula-content">
+                        $$\prod_{k=0}^{n} ar^k = a^{n+1} r^{\sum_{k=0}^{n} k} = a^{n+1} r^{n(n+1)/2}$$
+                    </div>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title"><i class="fas fa-dice-d6"></i> Fatorial Duplo</div>
+                    <div class="formula-content">
+                        $$(2n)!! = 2^n n!$$
+                        $$(2n-1)!! = \frac{(2n)!}{2^n n!}$$
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <div class="example-title"><i class="fas fa-lightbulb"></i> Exemplo:</div>
+                <p>Calcule o produtório: $$\prod_{k=2}^{n} \left(1 - \frac{1}{k^2}\right)$$</p>
+                <p><strong>Solução:</strong> Podemos reescrever:</p>
+                <p>$$1 - \frac{1}{k^2} = \frac{(k-1)(k+1)}{k^2}$$</p>
+                <p>Então:</p>
+                <p>$$\prod_{k=2}^{n} \left(1 - \frac{1}{k^2}\right) = \prod_{k=2}^{n} \frac{(k-1)(k+1)}{k^2} = \frac{\prod_{k=2}^{n} (k-1) \cdot \prod_{k=2}^{n} (k+1)}{\prod_{k=2}^{n} k^2}$$</p>
+                <p>$$= \frac{1 \cdot 2 \cdot \ldots \cdot (n-1) \cdot 3 \cdot 4 \cdot \ldots \cdot (n+1)}{(2 \cdot 3 \cdot \ldots \cdot n)^2} = \frac{\frac{(n-1)!}{1} \cdot \frac{(n+1)!}{2}}{(n!)^2} = \frac{(n-1)! (n+1)!}{2 (n!)^2}$$</p>
+                <p>Simplificando:</p>
+                <p>$$= \frac{(n+1) n! (n-1)!}{2 (n!)^2} = \frac{n+1}{2 n} = \frac{n+1}{2n}$$</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Cálculo Virtual &copy; 2025 - Desenvolvido por Fernando Santos</p>
+        <p>Portal completo para estudantes e entusiastas da matemática</p>
+    </footer>
+    
+    <div class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    
+    <script>
+        // Função para encolher o header ao rolar
+        function setupHeaderScroll() {
+            const header = document.querySelector('header');
+            if (!header) return;
+
+            const scrollThreshold = 80; // Distância em pixels para o efeito ocorrer
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > scrollThreshold) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
+                }
+            });
+        }
+
+        // Inicializar partículas
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Tamanho aleatório
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posição aleatória
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                particle.style.left = `${left}%`;
+                particle.style.top = `${top}%`;
+                
+                // Animação
+                const duration = Math.random() * 20 + 10;
+                particle.style.animation = `float ${duration}s infinite ease-in-out`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Observar seções para animação
+        function observeSections() {
+            const sections = document.querySelectorAll('.calc-section');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+        
+        // Botão voltar ao topo
+        function setupBackToTop() {
+            const backToTop = document.querySelector('.back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+        
+        // Gráfico de derivada interativo
+        function setupDerivativeGraph() {
+            const container = document.getElementById('derivative-graph');
+            const slider = document.getElementById('point-slider');
+            const pointValue = document.getElementById('point-value');
+            
+            // Função para calcular derivada
+            function derivative(fn, x) {
+                const h = 0.0001;
+                return (fn(x + h) - fn(x)) / h;
+            }
+            
+            // Funções disponíveis
+            const functions = {
+                'x^2': x => x * x,
+                'sin': x => Math.sin(x),
+                'exp': x => Math.exp(x)
+            };
+            
+            // Inicializar com a primeira função
+            let currentFn = functions['x^2'];
+            
+            // Atualizar gráfico
+            function updateGraph() {
+                const xValue = parseFloat(slider.value) / 10;
+                pointValue.textContent = xValue.toFixed(2);
+                
+                // Dados para o gráfico
+                const x = [];
+                const y = [];
+                const tangentX = [];
+                const tangentY = [];
+                
+                for (let i = -5; i <= 5; i += 0.1) {
+                    x.push(i);
+                    y.push(currentFn(i));
+                }
+                
+                // Calcular linha tangente
+                const slope = derivative(currentFn, xValue);
+                const yValue = currentFn(xValue);
+                
+                for (let i = xValue - 1; i <= xValue + 1; i += 0.1) {
+                    tangentX.push(i);
+                    tangentY.push(slope * (i - xValue) + yValue);
+                }
+                
+                // Criar gráfico
+                const data = [
+                    { x, y, type: 'scatter', mode: 'lines', name: 'Função', line: { color: '#4d7cff' } },
+                    { x: tangentX, y: tangentY, type: 'scatter', mode: 'lines', name: 'Tangente', line: { color: '#ff6b6b' } },
+                    { x: [xValue], y: [yValue], type: 'scatter', mode: 'markers', name: 'Ponto', marker: { size: 10, color: '#ff6b6b' } }
+                ];
+                
+                const layout = {
+                    title: 'Derivada e Reta Tangente',
+                    xaxis: { title: 'x' },
+                    yaxis: { title: 'f(x)' },
+                    showlegend: true,
+                    legend: { x: 0, y: 1 },
+                    margin: { t: 40, b: 40, l: 40, r: 40 },
+                    paper_bgcolor: 'rgba(10, 25, 47, 0)',
+                    plot_bgcolor: 'rgba(10, 25, 47, 0.2)',
+                    font: { color: '#e0e0e0' }
+                };
+                
+                Plotly.newPlot(container, data, layout);
+            }
+            
+            // Evento slider
+            slider.addEventListener('input', updateGraph);
+            
+            // Eventos botões
+            const buttons = document.querySelectorAll('#derivative-graph .graph-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentFn = functions[button.dataset.fn];
+                    updateGraph();
+                });
+            });
+            
+            // Inicializar gráfico
+            updateGraph();
+        }
+        
+        // Gráfico de integral interativo
+        function setupIntegralGraph() {
+            const container = document.getElementById('integral-graph');
+            const slider = document.getElementById('integral-slider');
+            const integralValue = document.getElementById('integral-value');
+            
+            // Funções disponíveis
+            const functions = {
+                'x^2': x => x * x,
+                'sin': x => Math.sin(x),
+                'sqrt': x => Math.sqrt(Math.abs(x))
+            };
+            
+            // Inicializar com a primeira função
+            let currentFn = functions['x^2'];
+            
+            // Atualizar gráfico
+            function updateGraph() {
+                const limit = parseFloat(slider.value) / 20;
+                integralValue.textContent = limit.toFixed(2);
+                
+                // Dados para o gráfico
+                const x = [];
+                const y = [];
+                const xArea = [];
+                const yArea = [];
+                
+                for (let i = -3; i <= 3; i += 0.1) {
+                    x.push(i);
+                    y.push(currentFn(i));
+                    
+                    if (i >= 0 && i <= limit) {
+                        xArea.push(i);
+                        yArea.push(currentFn(i));
+                    }
+                }
+                
+                // Criar gráfico
+                const data = [
+                    { x, y, type: 'scatter', mode: 'lines', name: 'Função', line: { color: '#4d7cff' } },
+                    { 
+                        x: [0, ...xArea, limit, 0], 
+                        y: [0, ...yArea, 0, 0], 
+                        type: 'scatter', 
+                        mode: 'lines', 
+                        fill: 'tozeroy', 
+                        name: 'Área', 
+                        fillcolor: 'rgba(77, 124, 255, 0.3)',
+                        line: { color: 'rgba(77, 124, 255, 0.5)' } 
+                    }
+                ];
+                
+                const layout = {
+                    title: 'Área Sob a Curva',
+                    xaxis: { title: 'x', range: [-3, 3] },
+                    yaxis: { title: 'f(x)' },
+                    showlegend: true,
+                    legend: { x: 0, y: 1 },
+                    margin: { t: 40, b: 40, l: 40, r: 40 },
+                    paper_bgcolor: 'rgba(10, 25, 47, 0)',
+                    plot_bgcolor: 'rgba(10, 25, 47, 0.2)',
+                    font: { color: '#e0e0e0' }
+                };
+                
+                Plotly.newPlot(container, data, layout);
+            }
+            
+            // Evento slider
+            slider.addEventListener('input', updateGraph);
+            
+            // Eventos botões
+            const buttons = document.querySelectorAll('#integral-graph .graph-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentFn = functions[button.dataset.fn];
+                    updateGraph();
+                });
+            });
+            
+            // Inicializar gráfico
+            updateGraph();
+        }
+        
+        // Visualização de somatório
+        function setupSummationVisualization() {
+            const container = document.getElementById('summation-vis');
+            const slider = document.getElementById('summation-slider');
+            const summationValue = document.getElementById('summation-value');
+            
+            // Atualizar visualização
+            function updateVisualization() {
+                const n = parseInt(slider.value);
+                summationValue.textContent = n;
+                
+                // Limpar container
+                container.innerHTML = '';
+                
+                // Adicionar slider
+                const sliderContainer = document.createElement('div');
+                sliderContainer.className = 'graph-slider';
+                sliderContainer.innerHTML = `
+                    <input type="range" min="1" max="20" value="${n}" id="summation-slider">
+                    <div class="slider-value">n = <span id="summation-value">${n}</span></div>
+                `;
+                container.appendChild(sliderContainer);
+                
+                // Adicionar visualização
+                const viz = document.createElement('div');
+                viz.style.display = 'flex';
+                viz.style.flexWrap = 'wrap';
+                viz.style.justifyContent = 'center';
+                viz.style.gap = '10px';
+                viz.style.padding = '20px';
+                
+                let sum = 0;
+                for (let i = 1; i <= n; i++) {
+                    const square = document.createElement('div');
+                    square.style.width = '40px';
+                    square.style.height = '40px';
+                    square.style.background = 'rgba(77, 124, 255, 0.3)';
+                    square.style.border = '1px solid #4d7cff';
+                    square.style.display = 'flex';
+                    square.style.alignItems = 'center';
+                    square.style.justifyContent = 'center';
+                    square.style.fontWeight = 'bold';
+                    square.textContent = i;
+                    
+                    // Animação
+                    square.style.opacity = '0';
+                    square.style.transform = 'scale(0)';
+                    square.style.transition = `all 0.5s ease ${i * 0.1}s`;
+                    
+                    viz.appendChild(square);
+                    
+                    // Atualizar após adicionar para animação funcionar
+                    setTimeout(() => {
+                        square.style.opacity = '1';
+                        square.style.transform = 'scale(1)';
+                    }, 10);
+                }
+                
+                container.appendChild(viz);
+                
+                // Reatribuir evento ao slider
+                document.getElementById('summation-slider').addEventListener('input', updateVisualization);
+            }
+            
+            // Inicializar visualização
+            updateVisualization();
+        }
+        
+        // Navegação por ícones
+        function setupIconNavigation() {
+            const icons = document.querySelectorAll('.math-icon');
+            
+            icons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const section = document.getElementById(icon.dataset.section);
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Destaque visual
+                        section.style.boxShadow = '0 0 30px rgba(77, 124, 255, 0.5)';
+                        setTimeout(() => {
+                            section.style.boxShadow = '';
+                        }, 2000);
+                    }
+                });
+            });
+        }
+        
+        // Inicializar tudo quando o documento estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            observeSections();
+            setupBackToTop();
+            setupHeaderScroll(); // Adicionando a nova função
+            setupDerivativeGraph();
+            setupIntegralGraph();
+            setupSummationVisualization();
+            setupIconNavigation();
+            
+            // Aplicar atraso de animação para os cards
+            const formulaCards = document.querySelectorAll('.formula-card');
+            formulaCards.forEach((card, index) => {
+                card.style.setProperty('--index', index);
+            });
+        });
+    </script>
+</body>
+</html>
